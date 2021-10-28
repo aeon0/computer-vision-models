@@ -1,0 +1,47 @@
+project:
+  name: cvms
+  syncFilters:
+    - exclude:
+      - .git/*
+      - .idea/*
+      - '*/__pycache__/*'
+      - tmp/*
+      - dependencies/*
+      - .pytest_cache/*
+      - trained_models/*
+
+containers:
+  - projectDir: /workspace/computer-vision-models
+    hostNetwork: true
+    file: Dockerfile
+    env:
+      PYTHONPATH: /workspace/computer-vision-models
+    volumeMounts:
+      - name: workspace
+        mountPath: /workspace
+
+instances:
+  - name: train
+    provider: aws
+    parameters:
+      region: eu-west-1
+      instanceType: p3.2xlarge
+      availabilityZone: eu-west-1c
+      spotInstance: true
+      dockerDataRoot: /docker
+      volumes:
+        - name: workspace
+          parameters:
+            size: 30
+            deletionPolicy: retain
+        - name: docker
+          parameters:
+            size: 30
+            mountDir: /docker
+            deletionPolicy: retain
+
+scripts:
+  train: |
+    python models/semseg/train.py
+  tensorboard: |
+    tensorboard --bind_all --port 6006 --logdir /workspace/computer-vision-models/trained_models

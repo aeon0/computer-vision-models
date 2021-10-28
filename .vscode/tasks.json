@@ -1,0 +1,36 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "docker-run",
+            "label": "docker-run: debug",
+            // No need to build since we bind lokal and container workspace. See "customOptions".
+            // "dependsOn": ["docker-build"],
+            "python": {
+                "file": "models/semseg/processor_test.py",
+                // "module": "pytest --pdb models/semseg/processor_test.py"
+            },
+            "dockerRun": {
+                "image": "computer-vision-models",
+                "containerName": "cvm-debug",
+                "customOptions": 
+                    "--rm --gpus all \
+                    --network=\"host\" \
+                    --privileged -v /dev/bus/usb:/dev/bus/usb \
+                    -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+                    --mount \"type=bind,source=$(pwd),target=/home/computer-vision-models\""
+            }
+        },
+        {
+            "type": "docker-build",
+            "label": "docker-build",
+            "dockerBuild": {
+                "tag": "computer-vision-models",
+                "dockerfile": "./Dockerfile",
+                "context": "./"
+            }
+        },
+    ]
+}

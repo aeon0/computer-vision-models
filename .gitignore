@@ -1,0 +1,9 @@
+__pycache__
+*.idea
+*.log
+*.pycS
+.vscode/settings.json
+.pytest_cache
+config.ini
+trained_models
+tmp
